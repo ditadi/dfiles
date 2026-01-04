@@ -6,9 +6,10 @@ src/**
 # Config files
 .vscode/**
 .github/**
+.husky/**
 tsconfig.json
-.eslintrc.json
-.prettierrc
+biome.json
+commitlint.config.js
 .editorconfig
 .nvmrc
 
