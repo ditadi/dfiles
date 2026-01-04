@@ -1,0 +1,32 @@
+# Source files (compiled output in out/)
+src/**
+**/*.ts
+!out/**/*.js
+
+# Config files
+.vscode/**
+.github/**
+tsconfig.json
+.eslintrc.json
+.prettierrc
+.editorconfig
+.nvmrc
+
+# Dev dependencies and tooling
+node_modules/**
+
+# Documentation (keep README and LICENSE)
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+CLAUDE.md
+PRODUCTION_READINESS_REPORT.md
+
+# Git
+.git/**
+.gitignore
+
+# Build artifacts
+*.vsix
+coverage/**
+*.log

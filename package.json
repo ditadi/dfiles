@@ -1,0 +1,130 @@
+{
+  "name": "dfiles",
+  "displayName": "dFiles",
+  "description": "Emacs/Doom-style file navigation for VS Code and Cursor",
+  "version": "0.1.0",
+  "publisher": "ditadi",
+  "author": {
+    "name": "Victor Ditadi",
+    "url": "https://ditadi.dev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ditadi/dfiles"
+  },
+  "bugs": {
+    "url": "https://github.com/ditadi/dfiles/issues"
+  },
+  "homepage": "https://github.com/ditadi/dfiles#readme",
+  "keywords": [
+    "emacs",
+    "doom",
+    "dired",
+    "file-manager",
+    "keyboard",
+    "spacemacs",
+    "vim",
+    "neovim"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dfiles.findFile",
+        "title": "dFiles: Find File"
+      },
+      {
+        "command": "dfiles.findFile.delete",
+        "title": "dFiles: Delete Selected"
+      },
+      {
+        "command": "dfiles.findFile.rename",
+        "title": "dFiles: Rename Selected"
+      },
+      {
+        "command": "dfiles.findFile.copyPath",
+        "title": "dFiles: Copy Path"
+      },
+      {
+        "command": "dfiles.recentFiles",
+        "title": "dFiles: Find Recent"
+      },
+      {
+        "command": "dfiles.recentFiles.clear",
+        "title": "dFiles: Clear Recent History"
+      },
+      {
+        "command": "dfiles.projectFiles",
+        "title": "dFiles: Find Project Files"
+      },
+      {
+        "command": "dfiles.searchProject",
+        "title": "dFiles: Search in Project"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "dfiles.findFile",
+        "key": "space f d",
+        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.recentFiles",
+        "key": "space f r",
+        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.projectFiles",
+        "key": "space f p",
+        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.searchProject",
+        "key": "space s p",
+        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.findFile.delete",
+        "key": "ctrl+d",
+        "when": "inQuickOpen"
+      },
+      {
+        "command": "dfiles.findFile.rename",
+        "key": "ctrl+r",
+        "when": "inQuickOpen"
+      },
+      {
+        "command": "dfiles.findFile.copyPath",
+        "key": "ctrl+y",
+        "when": "inQuickOpen"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --ext ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "package": "vsce package",
+    "prepublishOnly": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}
