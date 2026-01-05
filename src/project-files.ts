@@ -2,7 +2,12 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { buildExcludeGlob, getStartDirectory } from './utils';
 
-const MAX_FILES = 5000;
+function getConfig() {
+  const config = vscode.workspace.getConfiguration('dfiles');
+  return {
+    maxFiles: config.get<number>('projectFiles.maxFiles', 5000),
+  };
+}
 
 /**
  * Project Files - Search for files by name across the project
@@ -29,11 +34,12 @@ export class ProjectFiles {
 
     try {
       // build exclude pattern (based on .gitignore)
+      const { maxFiles } = getConfig();
       const excludePattern = await buildExcludeGlob(this.root);
       const files = await vscode.workspace.findFiles(
         new vscode.RelativePattern(this.root, '**/*'),
         excludePattern,
-        MAX_FILES
+        maxFiles
       );
 
       // sort files alphabetically by name

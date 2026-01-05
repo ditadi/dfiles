@@ -69,6 +69,46 @@
         "title": "dFiles: Search in Project"
       }
     ],
+"configuration": {
+      "title": "dFiles",
+      "properties": {
+        "dfiles.projectFiles.maxFiles": {
+          "type": "number",
+          "default": 5000,
+          "description": "Maximum number of files to index for project file search"
+        },
+        "dfiles.search.maxFiles": {
+          "type": "number",
+          "default": 5000,
+          "description": "Maximum number of files to search"
+        },
+        "dfiles.search.maxFileSize": {
+          "type": "number",
+          "default": 524288,
+          "description": "Maximum file size in bytes to search (default 512KB)"
+        },
+        "dfiles.search.debounceTime": {
+          "type": "number",
+          "default": 150,
+          "description": "Debounce time in milliseconds for reactive search"
+        },
+        "dfiles.search.maxResults": {
+          "type": "number",
+          "default": 100,
+          "description": "Maximum number of search results"
+        },
+        "dfiles.search.maxMatchesPerFile": {
+          "type": "number",
+          "default": 10,
+          "description": "Maximum matches per file in search results"
+        },
+        "dfiles.recent.maxEntries": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of recent file entries to keep"
+        }
+      }
+    },
     "keybindings": [
       {
         "command": "dfiles.findFile",

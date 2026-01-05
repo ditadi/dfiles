@@ -3,7 +3,13 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 
 const STORAGE_KEY = 'dfiles.recentEntries';
-const MAX_ENTRIES = 50;
+
+function getConfig() {
+  const config = vscode.workspace.getConfiguration('dfiles');
+  return {
+    maxEntries: config.get<number>('recent.maxEntries', 50),
+  };
+}
 
 interface RecentEntry {
   path: string;
@@ -74,6 +80,7 @@ export class RecentFiles {
   // add a new entry to the history
   addEntry(filePath: string, isDirectory: boolean): void {
     const entries = this.getEntries();
+    const { maxEntries } = getConfig();
 
     // remove existing entry if it exists (will re-add at top)
     const filtered = entries.filter((entry) => entry.path !== filePath);
@@ -86,7 +93,7 @@ export class RecentFiles {
     });
 
     // enforce max entries
-    const trimmed = filtered.slice(0, MAX_ENTRIES);
+    const trimmed = filtered.slice(0, maxEntries);
     this.context.globalState.update(STORAGE_KEY, trimmed);
   }
 

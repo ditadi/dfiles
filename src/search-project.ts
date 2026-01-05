@@ -3,13 +3,19 @@ import * as fs from 'node:fs';
 import * as vscode from 'vscode';
 import { buildExcludeGlob, getStartDirectory } from './utils';
 
-const MAX_FILES = 5000;
-const MAX_FILE_SIZE = 512 * 1024; // 512KB
-const MAX_MATCHES_PER_FILE = 10;
-const MAX_TOTAL_RESULTS = 100;
-const DEBOUNCE_TIME = 150; // 150ms
 const CONCURRENCY = 16;
 const MIN_QUERY_LENGTH = 2;
+
+function getConfig() {
+  const config = vscode.workspace.getConfiguration('dfiles');
+  return {
+    maxFiles: config.get<number>('search.maxFiles', 5000),
+    maxFileSize: config.get<number>('search.maxFileSize', 512 * 1024),
+    maxMatchesPerFile: config.get<number>('search.maxMatchesPerFile', 10),
+    maxResults: config.get<number>('search.maxResults', 100),
+    debounceTime: config.get<number>('search.debounceTime', 150),
+  };
+}
 
 interface SearchResult {
   file: string;
@@ -48,11 +54,12 @@ export class SearchProject {
 
   private async cacheFileList(): Promise<void> {
     try {
+      const { maxFiles } = getConfig();
       const excludePattern = await buildExcludeGlob(this.root);
       const files = await vscode.workspace.findFiles(
         new vscode.RelativePattern(this.root, '**/*'),
         excludePattern,
-        MAX_FILES
+        maxFiles
       );
       this.cachedFiles = files.map((uri) => uri.fsPath);
     } catch {
@@ -63,6 +70,8 @@ export class SearchProject {
   // perform the search - called after debounce timeout
   private async performSearch(query: string): Promise<void> {
     if (!this.quickPick) return;
+
+    const { maxResults } = getConfig();
 
     // increment search id to cancel old searches
     const currentSearchId = ++this.searchId;
@@ -75,7 +84,7 @@ export class SearchProject {
     for (let i = 0; i < this.cachedFiles.length; i += CONCURRENCY) {
       // check if search was cancelled
       if (this.searchId !== currentSearchId) break;
-      if (this.results.length >= MAX_TOTAL_RESULTS) break;
+      if (this.results.length >= maxResults) break;
 
       const chunk = this.cachedFiles.slice(i, i + CONCURRENCY);
       const chunkResults = await Promise.all(
@@ -87,9 +96,9 @@ export class SearchProject {
 
         for (const result of fileResults) {
           this.results.push(result);
-          if (this.results.length >= MAX_TOTAL_RESULTS) break;
+          if (this.results.length >= maxResults) break;
         }
-        if (this.results.length >= MAX_TOTAL_RESULTS) break;
+        if (this.results.length >= maxResults) break;
       }
     }
 
@@ -113,6 +122,7 @@ export class SearchProject {
     searchId: number
   ): Promise<SearchResult[]> {
     const results: SearchResult[] = [];
+    const { maxFileSize, maxMatchesPerFile } = getConfig();
 
     try {
       // check if cancelled
@@ -120,7 +130,7 @@ export class SearchProject {
 
       // check file size
       const stat = await fs.promises.stat(filePath);
-      if (stat.size > MAX_FILE_SIZE) return results;
+      if (stat.size > maxFileSize) return results;
       if (!stat.isFile()) return results;
 
       const content = await fs.promises.readFile(filePath, 'utf-8');
@@ -129,7 +139,7 @@ export class SearchProject {
       if (content.includes('\0')) return results;
 
       const lines = content.split('\n');
-      for (let i = 0; i < lines.length && results.length < MAX_MATCHES_PER_FILE; i++) {
+      for (let i = 0; i < lines.length && results.length < maxMatchesPerFile; i++) {
         const line = lines[i];
         const lineLower = line.toLowerCase();
         const column = lineLower.indexOf(query.toLowerCase());
@@ -167,7 +177,8 @@ export class SearchProject {
       return;
     }
 
-    this.debounceTimer = setTimeout(() => this.performSearch(query), DEBOUNCE_TIME);
+    const { debounceTime } = getConfig();
+    this.debounceTimer = setTimeout(() => this.performSearch(query), debounceTime);
   }
 
   // handle selection of a result
