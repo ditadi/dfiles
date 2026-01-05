@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { FindFile } from './find-file';
 import { RecentFiles } from './recent-files';
 import { ProjectFiles } from './project-files';
+import { SearchProject } from './search-project';
 
 export function activate(context: vscode.ExtensionContext): void {
   const recentFiles = new RecentFiles(context);
@@ -10,6 +11,7 @@ export function activate(context: vscode.ExtensionContext): void {
     onFileOpened: (file: string) => recentFiles.addEntry(file, false),
   });
   const projectFiles = new ProjectFiles();
+  const searchProject = new SearchProject();
 
   context.subscriptions.push(
     vscode.commands.registerCommand('dfiles.findFile', () => findFile.show()),
@@ -24,9 +26,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     vscode.commands.registerCommand('dfiles.recentFiles.clear', () => recentFiles.clearHistory()),
     vscode.commands.registerCommand('dfiles.projectFiles', () => projectFiles.show()),
-    vscode.commands.registerCommand('dfiles.searchProject', () => {
-      vscode.window.showInformationMessage('search project not implemented yet');
-    })
+    vscode.commands.registerCommand('dfiles.searchProject', () => searchProject.show())
   );
 }
 
