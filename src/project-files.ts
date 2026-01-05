@@ -1,6 +1,7 @@
+import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { buildExcludeGlob, getStartDirectory } from './utils';
+import { buildExcludeGlob } from './utils';
 
 function getConfig() {
   const config = vscode.workspace.getConfiguration('dfiles');
@@ -23,7 +24,8 @@ export class ProjectFiles {
   private root = '';
 
   async show(): Promise<void> {
-    this.root = getStartDirectory();
+    // get workspace root or home directory
+    this.root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || os.homedir();
     this.quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
 
     this.quickPick.placeholder = 'Type to search files by name';

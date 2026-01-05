@@ -1,7 +1,8 @@
+import * as os from 'node:os';
 import path from 'node:path';
 import * as fs from 'node:fs';
 import * as vscode from 'vscode';
-import { buildExcludeGlob, getStartDirectory } from './utils';
+import { buildExcludeGlob } from './utils';
 
 const CONCURRENCY = 16;
 const MIN_QUERY_LENGTH = 2;
@@ -33,7 +34,7 @@ export class SearchProject {
   private results: SearchResult[] = [];
 
   async show(): Promise<void> {
-    this.root = getStartDirectory();
+    this.root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || os.homedir();
     this.searchId = 0;
     this.results = [];
 
