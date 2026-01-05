@@ -73,22 +73,42 @@
       {
         "command": "dfiles.findFile",
         "key": "space f d",
-        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+        "when": "editorTextFocus && !editorReadonly && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.findFile",
+        "key": "space f d",
+        "when": "!editorFocus"
       },
       {
         "command": "dfiles.recentFiles",
         "key": "space f r",
-        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+        "when": "editorTextFocus && !editorReadonly && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.recentFiles",
+        "key": "space f r",
+        "when": "!editorFocus"
       },
       {
         "command": "dfiles.projectFiles",
         "key": "space f p",
-        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+        "when": "editorTextFocus && !editorReadonly && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.projectFiles",
+        "key": "space f p",
+        "when": "!editorFocus"
       },
       {
         "command": "dfiles.searchProject",
         "key": "space s p",
-        "when": "editorTextFocus && vim.mode != 'Insert' && vim.mode != 'Replace'"
+        "when": "editorTextFocus && !editorReadonly && vim.mode != 'Insert' && vim.mode != 'Replace'"
+      },
+      {
+        "command": "dfiles.searchProject",
+        "key": "space s p",
+        "when": "!editorFocus"
       },
       {
         "command": "dfiles.findFile.delete",
