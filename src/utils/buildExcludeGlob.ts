@@ -30,6 +30,11 @@ export async function buildExcludeGlob(root: string): Promise<string> {
       // handle negation - skip for now
       if (pattern.startsWith('!')) continue;
 
+      // remove trailing slash (e.g., ".cache/" -> ".cache")
+      if (pattern.endsWith('/')) {
+        pattern = pattern.slice(0, -1);
+      }
+
       // if no wildcard, wrap with **
       if (!pattern.includes('*')) {
         pattern = `**/${pattern}/**`;

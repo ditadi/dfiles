@@ -142,12 +142,12 @@
       },
       {
         "command": "dfiles.searchProject",
-        "key": "space s p",
+        "key": "space f s",
         "when": "editorTextFocus && !editorReadonly && vim.mode != 'Insert' && vim.mode != 'Replace'"
       },
       {
         "command": "dfiles.searchProject",
-        "key": "space s p",
+        "key": "space f s",
         "when": "!editorFocus"
       },
       {
