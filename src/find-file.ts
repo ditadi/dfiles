@@ -13,6 +13,14 @@ interface FindFileCallbacks {
   onFileOpened?: (file: string) => void;
 }
 
+/**
+ * Find File - Directory navigation and file management
+ * - Navigate directories with your keyboard
+ * - Create files and folders
+ * - Delete files and folders
+ * - Rename files and folders
+ * - Copy file paths
+ */
 export class FindFile {
   private quickPick: vscode.QuickPick<vscode.QuickPickItem> | null = null;
   private disposables: vscode.Disposable[] = [];
@@ -25,6 +33,7 @@ export class FindFile {
     this.callbacks = callbacks;
   }
 
+  // show the quick pick
   async show(): Promise<void> {
     this.currentDir = getStartDirectory();
     this.createQuickPick();
@@ -35,6 +44,88 @@ export class FindFile {
     this.quickPick.busy = true;
     this.quickPick.show();
     await this.refreshDirectory();
+  }
+
+  // show the quick pick at a specific path (used for recent files)
+  async showAtPath(dir: string): Promise<void> {
+    this.currentDir = dir;
+    this.createQuickPick();
+    if (!this.quickPick) return;
+
+    this.quickPick.title = this.currentDir;
+    this.quickPick.busy = true;
+    this.quickPick.show();
+    await this.refreshDirectory();
+  }
+
+  // delete selected item (file or directory)
+  async deleteSelected(): Promise<void> {
+    const selected = this.quickPick?.activeItems[0];
+    if (!selected) return;
+
+    const name = this.extractName(selected.label);
+    const fullPath = path.join(this.currentDir, name);
+
+    // create confirmation dialog
+    const confirm = await vscode.window.showWarningMessage(
+      `Delete "${name}"?`,
+      { modal: true },
+      'Delete'
+    );
+
+    if (confirm === 'Delete') {
+      try {
+        const stat = await fs.promises.stat(fullPath);
+        if (stat.isDirectory()) {
+          // if it's a directory, delete it recursively
+          await fs.promises.rm(fullPath, { recursive: true });
+        } else {
+          // if it's a file, delete it
+          await fs.promises.unlink(fullPath);
+        }
+        await this.refreshDirectory();
+      } catch (err) {
+        vscode.window.showErrorMessage(`Failed to delete: ${err}`);
+      }
+    }
+  }
+
+  // rename selected file or directory
+  async renameSelected(): Promise<void> {
+    const selected = this.quickPick?.activeItems[0];
+    if (!selected) return;
+
+    const oldName = this.extractName(selected.label);
+    // show input box to type the file new name
+    const newName = await vscode.window.showInputBox({
+      prompt: 'New name',
+      value: oldName,
+      valueSelection: [0, oldName.lastIndexOf('.') > 0 ? oldName.lastIndexOf('.') : oldName.length],
+    });
+
+    if (newName && newName !== oldName) {
+      try {
+        const oldPath = path.join(this.currentDir, oldName);
+        const newPath = path.join(this.currentDir, newName);
+        await fs.promises.rename(oldPath, newPath);
+        await this.refreshDirectory();
+      } catch (err) {
+        vscode.window.showErrorMessage(`Failed to rename: ${err}`);
+      }
+    }
+  }
+
+  // copy path of selected item
+  async copyPath(): Promise<void> {
+    const selected = this.quickPick?.activeItems[0];
+    if (!selected) return;
+
+    const name = this.extractName(selected.label);
+    const fullPath = path.join(this.currentDir, name);
+
+    // clipboard copy the full path
+    await vscode.env.clipboard.writeText(fullPath);
+    vscode.window.showInformationMessage(`Copied: ${fullPath}`);
   }
 
   private createQuickPick(): void {
@@ -216,76 +307,6 @@ export class FindFile {
         await this.copyPath();
         break;
     }
-  }
-
-  // delete selected item (file or directory)
-  async deleteSelected(): Promise<void> {
-    const selected = this.quickPick?.activeItems[0];
-    if (!selected) return;
-
-    const name = this.extractName(selected.label);
-    const fullPath = path.join(this.currentDir, name);
-
-    // create confirmation dialog
-    const confirm = await vscode.window.showWarningMessage(
-      `Delete "${name}"?`,
-      { modal: true },
-      'Delete'
-    );
-
-    if (confirm === 'Delete') {
-      try {
-        const stat = await fs.promises.stat(fullPath);
-        if (stat.isDirectory()) {
-          // if it's a directory, delete it recursively
-          await fs.promises.rm(fullPath, { recursive: true });
-        } else {
-          // if it's a file, delete it
-          await fs.promises.unlink(fullPath);
-        }
-        await this.refreshDirectory();
-      } catch (err) {
-        vscode.window.showErrorMessage(`Failed to delete: ${err}`);
-      }
-    }
-  }
-
-  // rename selected file or directory
-  async renameSelected(): Promise<void> {
-    const selected = this.quickPick?.activeItems[0];
-    if (!selected) return;
-
-    const oldName = this.extractName(selected.label);
-    // show input box to type the file new name
-    const newName = await vscode.window.showInputBox({
-      prompt: 'New name',
-      value: oldName,
-      valueSelection: [0, oldName.lastIndexOf('.') > 0 ? oldName.lastIndexOf('.') : oldName.length],
-    });
-
-    if (newName && newName !== oldName) {
-      try {
-        const oldPath = path.join(this.currentDir, oldName);
-        const newPath = path.join(this.currentDir, newName);
-        await fs.promises.rename(oldPath, newPath);
-        await this.refreshDirectory();
-      } catch (err) {
-        vscode.window.showErrorMessage(`Failed to rename: ${err}`);
-      }
-    }
-  }
-
-  // copy path of selected item
-  async copyPath(): Promise<void> {
-    const selected = this.quickPick?.activeItems[0];
-    if (!selected) return;
-
-    const name = this.extractName(selected.label);
-    const fullPath = path.join(this.currentDir, name);
-
-    // clipboard copy the full path
-    await vscode.env.clipboard.writeText(fullPath);
-    vscode.window.showInformationMessage(`Copied: ${fullPath}`);
   }
 
   private async goUpDirectory(): Promise<void> {
